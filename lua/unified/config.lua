@@ -8,9 +8,11 @@ M.defaults = {
     change = "│",
   },
   highlights = {
-    add = "DiffAdd",
-    delete = "DiffDelete",
-    change = "DiffChange",
+    -- Muted, Nord-toned groups defined in lua/unified/colors.lua. Point these
+    -- back at DiffAdd/DiffDelete/DiffChange for the stock look.
+    add = "UnifiedMutedAdd",
+    delete = "UnifiedMutedDelete",
+    change = "UnifiedMutedChange",
   },
   line_symbols = {
     add = "+",
@@ -18,6 +20,10 @@ M.defaults = {
     change = "~",
   },
   auto_refresh = true, -- Whether to auto-refresh diff when buffer changes
+  auto_refresh_debounce_ms = 50, -- How long to wait after the last edit before repainting the diff
+  -- Set the fork's default keymaps (<leader>d/hr/ht). Disable and map
+  -- require('unified').* yourself if you prefer.
+  keymaps = true,
   -- When true, showing a diff moves the cursor to the first changed hunk: both
   -- when a file is opened from the tree and when :Unified runs on the current
   -- buffer. Set false to leave the cursor where it is.
@@ -28,7 +34,7 @@ M.defaults = {
   tab = false,
   file_tree = {
     enabled = true, -- When false, :Unified never opens the file tree; the diff is shown for the current buffer.
-    width = 30, -- Width of the file tree window (columns, or 0-1 for relative)
+    width = 40, -- Width of the file tree window (columns, or 0-1 for relative)
     filename_first = true, -- Show filename before directory path (Snacks backend only)
     -- When true, :Unified moves the cursor into the tree on open. When false, focus
     -- stays in your buffer. The current buffer's diff is shown either way.

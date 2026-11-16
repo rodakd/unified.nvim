@@ -1,7 +1,6 @@
 local M = {}
 
 local default = {
-  debounce_delay = 300,
   augroup_name = "UnifiedDiffAutoRefresh",
 }
 
@@ -29,6 +28,7 @@ function M.setup(buffer)
   local diff = require("unified.diff")
   local async = require("unified.utils.async")
   local group = ensure_augroup()
+  local debounce_delay = config.values.auto_refresh_debounce_ms or 50
 
   -- Remove any prior autocmds for *this* buffer to avoid duplicates, while
   -- leaving other buffers' refresh autocmds intact.
@@ -52,7 +52,7 @@ function M.setup(buffer)
     async.run(function()
       require("unified.git").show_git_diff_against_commit(commit, buffer)
     end)
-  end, default.debounce_delay)
+  end, debounce_delay)
 
   vim.api.nvim_create_autocmd({
     "TextChanged",

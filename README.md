@@ -1,5 +1,35 @@
 # unified.nvim
 
+> [!NOTE]
+> Personal fork of [`axkirillov/unified.nvim`](https://github.com/axkirillov/unified.nvim)
+> (vendored at `dae76cb`), carrying local fixes plus everything the old
+> init.lua used to bolt on at runtime. Lives at
+> [`rodakd/unified.nvim`](https://github.com/rodakd/unified.nvim) — install
+> from a local `dir` (see below); don't point lazy.nvim at upstream or an
+> update will clobber it.
+
+## Fork additions
+
+* **Hunk visibility toggle** (`require('unified').toggle_hunks`): hide the diff
+  paint — highlights, signs, virtual deleted lines — while the session stays
+  active; auto-refresh stays suppressed while hidden, and any explicit
+  `:Unified <ref>` lifts the hiding again. Default keymap `<leader>ht`.
+* **Revert hunk under cursor** (`require('unified.hunk_revert')`): computes the
+  patch against the *active diff base* (not just the index), so `:Unified
+  main` reviews can undo a hunk back to that base. Default keymap `<leader>hr`.
+* **Diff toggle / branch diff** (`<leader>d`): resets an active diff, else
+  prompts for a branch and diffs against its merge-base (empty input = HEAD).
+* **Muted diff colors** (`lua/unified/colors.lua`): Nord-toned
+  `UnifiedMuted{Add,Delete,Change}` groups (plus `DiffChange`), re-applied on
+  every colorscheme switch; used as the default `highlights`.
+* **Tree focus behavior**: opening a file from the tree (`l`, `<CR>`,
+  `move_cursor_and_open_file`) returns focus to the content window.
+* **50 ms auto-refresh debounce** (`auto_refresh_debounce_ms`), configurable.
+* **Optional nvim-scrollview integration** (`lua/unified/scrollview_signs.lua`):
+  +/- scrollbar marks for changed lines relative to the diff base; no-ops when
+  nvim-scrollview is absent.
+* Default keymaps can be turned off with `setup({ keymaps = false })`.
+
 A Neovim plugin for displaying inline unified diffs directly in your buffer.
 
 <img width="1840" alt="image" src="https://github.com/user-attachments/assets/7655659e-c8af-40c5-ad70-59f67a2b16d9" />
@@ -173,6 +203,14 @@ vim.keymap.set('n', '<leader>ud', require('unified').toggle, { desc = 'Toggle un
 ```
 
 This toggles the diff view on/off, remembering the previous commit reference (defaulting to `HEAD` the first time).
+
+### Hunk visibility toggle
+
+While a diff is active, you can hide the diff paint (highlights, signs, virtual deleted lines) to read the file without the noise, and bring it back with a second press. The diff session stays active: auto-refresh is suppressed while hidden, and any explicit `:Unified <ref>` (or opening the file from the tree) shows the paint again.
+
+```lua
+vim.keymap.set('n', '<leader>ht', require('unified').toggle_hunks, { desc = 'Unified: toggle hunk visibility' })
+```
 
 You can also open the commit picker directly — handy if you usually diff against a chosen commit rather than `HEAD`:
 

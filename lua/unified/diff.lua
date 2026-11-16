@@ -314,6 +314,41 @@ end
 
 ---@param commit string
 ---@param buffer_id? integer Optional buffer ID to show diff in. Defaults to current buffer.
+-- Hide the diff paint (extmarks, signs, virtual deleted lines) while keeping
+-- the diff session active, so the file can be read without the noise; a second
+-- call re-renders against the remembered base commit.
+function M.toggle_hunks(buffer_id)
+  local buffer = buffer_id or vim.api.nvim_get_current_buf()
+  if not vim.api.nvim_buf_is_valid(buffer) then
+    return false
+  end
+  if vim.api.nvim_buf_get_option(buffer, "filetype") == "unified_tree" then
+    return false
+  end
+
+  if vim.b[buffer].unified_hunks_hidden then
+    vim.b[buffer].unified_hunks_hidden = nil
+    local ok, commit = pcall(require("unified.state").get_commit_base)
+    return M.show(ok and commit or "HEAD", buffer)
+  end
+
+  if not M.is_diff_displayed(buffer) then
+    vim.api.nvim_echo({ { "Unified: no diff displayed in this buffer", "WarningMsg" } }, false, {})
+    return false
+  end
+  -- The deleted-file view owns the buffer contents (the committed blob was
+  -- written into it); hiding it would strand the view with no way back, since
+  -- re-rendering an unchanged blob reports "No changes".
+  if vim.b[buffer].unified_deleted_view then
+    vim.api.nvim_echo({ { "Unified: cannot toggle hunks in a deleted-file view", "WarningMsg" } }, false, {})
+    return false
+  end
+
+  require("unified.git").clear_diff(buffer)
+  vim.b[buffer].unified_hunks_hidden = true
+  return true
+end
+
 function M.show(commit, buffer_id)
   local buffer = buffer_id or vim.api.nvim_get_current_buf()
   if not vim.api.nvim_buf_is_valid(buffer) then
@@ -326,6 +361,11 @@ function M.show(commit, buffer_id)
   if ft == "unified_tree" then
     return false
   end
+
+  -- An explicit show is user intent: lift hunk hiding so the requested diff is
+  -- visible. Auto-refresh calls show_git_diff_against_commit directly and stays
+  -- suppressed while hidden.
+  vim.b[buffer].unified_hunks_hidden = nil
 
   local git = require("unified.git")
   return git.show_git_diff_against_commit(commit, buffer)

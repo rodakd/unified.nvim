@@ -12,13 +12,13 @@ vim.bo.syntax = "unified_tree"
 
 -- Local fallback to avoid errors if an older cached version of actions.lua is loaded
 local function unified_move_cursor_file_only(direction, count)
-  local ok, actions = pcall(require, 'unified.file_tree.actions')
-  if ok and type(actions.move_cursor_file_only) == 'function' then
+  local ok, actions = pcall(require, "unified.file_tree.actions")
+  if ok and type(actions.move_cursor_file_only) == "function" then
     return actions.move_cursor_file_only(direction, count)
   end
 
   -- Fallback implementation if the function is not available yet
-  local state_ok, tree_state = pcall(require, 'unified.file_tree.state')
+  local state_ok, tree_state = pcall(require, "unified.file_tree.state")
   if not state_ok then
     return
   end
@@ -69,30 +69,24 @@ vim.keymap.set("n", "<Up>", function()
   unified_move_cursor_file_only(-1, vim.v.count1)
 end, { noremap = true, silent = true, buffer = true })
 
-vim.keymap.set("n", "R",
-  function()
-    require('unified.file_tree.actions').refresh()
-  end,
-  { noremap = true, silent = true, buffer = true }
-)
+vim.keymap.set("n", "R", function()
+  require("unified.file_tree.actions").refresh()
+end, { noremap = true, silent = true, buffer = true })
 
-vim.keymap.set("n", "q",
-  function()
-    require('unified.file_tree.actions').close_tree()
-  end,
-  { noremap = true, silent = true, buffer = true }
-)
+vim.keymap.set("n", "q", function()
+  require("unified.file_tree.actions").close_tree()
+end, { noremap = true, silent = true, buffer = true })
 
-vim.keymap.set("n", "?",
-  function()
-    require('unified.file_tree.actions').show_help()
-  end,
-  { noremap = true, silent = true, buffer = true }
-)
+vim.keymap.set("n", "?", function()
+  require("unified.file_tree.actions").show_help()
+end, { noremap = true, silent = true, buffer = true })
 
-vim.keymap.set("n", "l",
-  function()
-    require('unified.file_tree.actions').toggle_node()
-  end,
-  { noremap = true, silent = true, buffer = true }
-)
+vim.keymap.set("n", "l", function()
+  require("unified.file_tree.actions").toggle_node()
+end, { noremap = true, silent = true, buffer = true })
+
+-- <CR> opens/toggles the node under the cursor, same as `l`; toggle_node is
+-- wrapped (unified.wrap_tree_actions) so focus returns to the content window.
+vim.keymap.set("n", "<CR>", function()
+  require("unified.file_tree.actions").toggle_node()
+end, { noremap = true, silent = true, buffer = true, desc = "Unified: open file" })

@@ -86,6 +86,10 @@ local function clear_diff(buf)
   require("unified.virt_scroll").forget(buf)
 end
 
+-- Also used by diff.toggle_hunks to hide the paint while keeping the session
+-- active.
+M.clear_diff = clear_diff
+
 function M.is_git_repo(path)
   return find_git_root(path) ~= nil
 end
@@ -179,6 +183,13 @@ end
 function M.show_git_diff_against_commit(commit, buf)
   buf = buf or vim.api.nvim_get_current_buf()
   if not vim.api.nvim_buf_is_valid(buf) then
+    return false
+  end
+
+  -- While hunks are hidden (diff.toggle_hunks), an auto-refresh that was already
+  -- in flight must not repaint the diff behind the user's back. Explicit calls
+  -- go through Diff.show, which lifts the suppression first.
+  if vim.b[buf].unified_hunks_hidden then
     return false
   end
 

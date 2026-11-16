@@ -206,6 +206,9 @@ function M.reset()
       vim.fn.sign_unplace("unified_diff", { buffer = buf })
       hunk_store.clear(buf)
       require("unified.virt_scroll").forget(buf)
+      -- A stale hidden flag would silently suppress the next :Unified's diff
+      -- for this buffer.
+      vim.b[buf].unified_hunks_hidden = nil
     end
   end
 
