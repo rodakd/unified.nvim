@@ -2,11 +2,7 @@
 
 > [!NOTE]
 > Personal fork of [`axkirillov/unified.nvim`](https://github.com/axkirillov/unified.nvim)
-> (vendored at `dae76cb`), carrying local fixes plus everything the old
-> init.lua used to bolt on at runtime. Lives at
-> [`rodakd/unified.nvim`](https://github.com/rodakd/unified.nvim) — install
-> from a local `dir` (see below); don't point lazy.nvim at upstream or an
-> update will clobber it.
+> with a few additions on top — see [Fork additions](#fork-additions) below.
 
 ## Fork additions
 
@@ -17,8 +13,9 @@
 * **Revert hunk under cursor** (`require('unified.hunk_revert')`): computes the
   patch against the *active diff base* (not just the index), so `:Unified
   main` reviews can undo a hunk back to that base. Default keymap `<leader>hr`.
-* **Diff toggle / branch diff** (`<leader>d`): resets an active diff, else
-  prompts for a branch and diffs against its merge-base (empty input = HEAD).
+* **Diff toggle / branch diff**: resets an active diff, else prompts for a
+  branch and diffs against its merge-base (empty input = `HEAD`). Default
+  keymap `<leader>d`.
 * **Muted diff colors** (`lua/unified/colors.lua`): Nord-toned
   `UnifiedMuted{Add,Delete,Change}` groups (plus `DiffChange`), re-applied on
   every colorscheme switch; used as the default `highlights`.
@@ -58,10 +55,19 @@ You can install `unified.nvim` using your favorite plugin manager.
 
 ```lua
 {
-  'axkirillov/unified.nvim',
+  'rodakd/unified.nvim',
   opts = {
     -- your configuration comes here
   }
+}
+```
+
+Or, to use a local checkout instead of fetching from GitHub:
+
+```lua
+{
+  dir = '~/repos/unified.nvim',
+  opts = {},
 }
 ```
 
@@ -69,7 +75,7 @@ You can install `unified.nvim` using your favorite plugin manager.
 
 ```lua
 use {
-  'axkirillov/unified.nvim',
+  'rodakd/unified.nvim',
   config = function()
     require('unified').setup({
       -- your configuration comes here
@@ -90,9 +96,11 @@ require('unified').setup({
     change = "│",
   },
   highlights = {
-    add = "DiffAdd",
-    delete = "DiffDelete",
-    change = "DiffChange",
+    -- Muted, Nord-toned groups from lua/unified/colors.lua.
+    -- Use "DiffAdd" / "DiffDelete" / "DiffChange" for the stock look.
+    add = "UnifiedMutedAdd",
+    delete = "UnifiedMutedDelete",
+    change = "UnifiedMutedChange",
   },
   line_symbols = {
     add = "+",
@@ -100,6 +108,8 @@ require('unified').setup({
     change = "~",
   },
   auto_refresh = true, -- Whether to automatically refresh diff when buffer changes
+  auto_refresh_debounce_ms = 50, -- How long to wait after the last edit before repainting
+  keymaps = true, -- Set the fork's default keymaps (<leader>d, <leader>hr, <leader>ht)
   -- When true, showing a diff moves the cursor to the first changed hunk -- both
   -- when opening a file from the tree and when :Unified runs on the current
   -- buffer. Set false to leave the cursor where it is.
@@ -110,7 +120,7 @@ require('unified').setup({
   tab = false,
   file_tree = {
     enabled = true, -- When false, :Unified does not open the tree; the diff is shown for the current buffer.
-    width = 30, -- Width of the tree window (columns, or a 0-1 fraction of the editor width)
+    width = 40, -- Width of the tree window (columns, or a 0-1 fraction of the editor width)
     filename_first = true, -- Show filename before directory path (Snacks backend only)
     -- When true, :Unified moves the cursor into the tree on open.
     -- When false, focus stays in your buffer. Either way the current buffer's diff is shown.
@@ -170,6 +180,7 @@ When the default file tree is open, you can use the following keymaps:
 
   * `j`/`k` or `<Down>`/`<Up>`: Move the cursor down/up between file nodes.
   * `l`: Open the file under the cursor in the main window, displaying its diff.
+  * `<CR>`: Same as `l`.
   * `q`: Close the file tree window.
   * `R`: Refresh the file tree.
   * `?`: Show a help dialog.
