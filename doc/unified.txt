@@ -130,6 +130,8 @@ Default Keymaps (in the file tree window):
   - `j`/`k` (or `<Down>`/`<Up>`): Move the cursor between changed files.
   - `l`: Open the file under the cursor in the main window, displaying its
     diff.
+  - `<leader>o` / `<leader>i`: Open the next / previous file in the tree and
+    return focus to the content window. Also works from the content window.
   - `q`: Close the file tree window.
   - `R`: Refresh the file tree contents.
   - `?`: Show a help dialog.

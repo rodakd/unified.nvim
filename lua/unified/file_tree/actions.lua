@@ -142,6 +142,8 @@ function M.show_help()
     "Navigation:",
     "  j/k       : Move up/down",
     "  l         : Open file under cursor",
+    "  <leader>o : Next file (opens it)",
+    "  <leader>i : Previous file (opens it)",
     "",
     "Actions:",
     "  R         : Refresh the tree",
@@ -251,14 +253,29 @@ function M.close_tree()
   global_state.file_tree_buf = nil
 end -- End of M.close_tree
 
--- Move cursor to the next/previous file node and open it
+-- Move cursor to the next/previous file node and open it.
+--
+-- Works from the content window too, not just the tree: navigation keymaps are
+-- meant to be usable while reading a diff, without first jumping to the tree.
+-- Focus returns to the content window afterwards (see unified.wrap_tree_actions).
 function M.move_cursor_and_open_file(direction)
-  if not is_file_tree_buffer() then
+  local state = require("unified.file_tree.state")
+  if not state.buffer or not vim.api.nvim_buf_is_valid(state.buffer) then
     return
   end
 
-  local current_line = vim.api.nvim_win_get_cursor(0)[1] - 1 -- 0-based
-  local state = require("unified.file_tree.state")
+  local tree_win = state.window
+  if not tree_win or not vim.api.nvim_win_is_valid(tree_win) then
+    return
+  end
+
+  -- open_file_node() keys off the current window to find its tree window, so
+  -- the action has to run with the tree window current.
+  if vim.api.nvim_get_current_win() ~= tree_win then
+    vim.api.nvim_set_current_win(tree_win)
+  end
+
+  local current_line = vim.api.nvim_win_get_cursor(tree_win)[1] - 1 -- 0-based
   local total_lines = vim.api.nvim_buf_line_count(state.buffer)
   local next_line = current_line
 
@@ -268,7 +285,7 @@ function M.move_cursor_and_open_file(direction)
     local node = state.line_to_node[next_line]
     if node and not node.is_dir then
       -- Found the next file node
-      vim.api.nvim_win_set_cursor(0, { next_line + 1, 0 }) -- Set cursor (1-based)
+      vim.api.nvim_win_set_cursor(tree_win, { next_line + 1, 0 }) -- Set cursor (1-based)
       open_file_node(node) -- Open the file
       return -- Done
     end

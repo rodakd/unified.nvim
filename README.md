@@ -21,6 +21,9 @@
   every colorscheme switch; used as the default `highlights`.
 * **Tree focus behavior**: opening a file from the tree (`l`, `<CR>`,
   `move_cursor_and_open_file`) returns focus to the content window.
+* **Next/previous file from the content window**: `<leader>o` / `<leader>i`
+  open the next / previous file in the tree and return focus to the content
+  window, so you can walk a diff without touching the tree.
 * **50 ms auto-refresh debounce** (`auto_refresh_debounce_ms`), configurable.
 * **Optional nvim-scrollview integration** (`lua/unified/scrollview_signs.lua`):
   +/- scrollbar marks for changed lines relative to the diff base; no-ops when
@@ -109,7 +112,7 @@ require('unified').setup({
   },
   auto_refresh = true, -- Whether to automatically refresh diff when buffer changes
   auto_refresh_debounce_ms = 50, -- How long to wait after the last edit before repainting
-  keymaps = true, -- Set the fork's default keymaps (<leader>d, <leader>hr, <leader>ht)
+  keymaps = true, -- Set the fork's default keymaps (<leader>d, <leader>hr, <leader>ht, <leader>o, <leader>i)
   -- When true, showing a diff moves the cursor to the first changed hunk -- both
   -- when opening a file from the tree and when :Unified runs on the current
   -- buffer. Set false to leave the cursor where it is.
@@ -181,6 +184,8 @@ When the default file tree is open, you can use the following keymaps:
   * `j`/`k` or `<Down>`/`<Up>`: Move the cursor down/up between file nodes.
   * `l`: Open the file under the cursor in the main window, displaying its diff.
   * `<CR>`: Same as `l`.
+  * `<leader>o` / `<leader>i`: Open the next / previous file in the tree and
+    return focus to the content window (works from the content window too).
   * `q`: Close the file tree window.
   * `R`: Refresh the file tree.
   * `?`: Show a help dialog.

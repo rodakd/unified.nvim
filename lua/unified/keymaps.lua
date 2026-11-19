@@ -8,6 +8,25 @@ function M.setup()
     require("unified.hunk_revert").revert_hunk_under_cursor()
   end, { desc = "Unified: revert hunk under cursor" })
 
+  -- Step through the files in the tree, opening each one. Guarded because
+  -- outside an active session there is no tree to walk (and these keys may be
+  -- used for something else).
+  local function step_tree_file(direction)
+    if not require("unified.state").is_active() then
+      return
+    end
+
+    require("unified.file_tree.actions").move_cursor_and_open_file(direction)
+  end
+
+  vim.keymap.set("n", "<leader>o", function()
+    step_tree_file(1)
+  end, { desc = "Unified: next file in tree" })
+
+  vim.keymap.set("n", "<leader>i", function()
+    step_tree_file(-1)
+  end, { desc = "Unified: previous file in tree" })
+
   -- Hide/show the diff paint while the diff session stays active.
   vim.keymap.set("n", "<leader>ht", function()
     require("unified").toggle_hunks()

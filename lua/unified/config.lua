@@ -21,7 +21,8 @@ M.defaults = {
   },
   auto_refresh = true, -- Whether to auto-refresh diff when buffer changes
   auto_refresh_debounce_ms = 50, -- How long to wait after the last edit before repainting the diff
-  -- Set the fork's default keymaps (<leader>d/hr/ht). Disable and map
+  -- Set the fork's default keymaps (<leader>d/hr/ht, <leader>o/i for
+  -- next/previous file in the tree). Disable and map
   -- require('unified').* yourself if you prefer.
   keymaps = true,
   -- When true, showing a diff moves the cursor to the first changed hunk: both
